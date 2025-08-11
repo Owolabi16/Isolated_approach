@@ -16,6 +16,11 @@ inputs:
   helm_username:
     description: "Helm Registry Username"
     required: true
+  release_type:
+    description: "Release type: 'minor' or 'patch'"
+    required: true
+    default: "minor"
+    
 
 outputs:
   platform_version:
@@ -25,6 +30,21 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Set Release Mode
+      id: release_mode
+      run: |
+        echo "release_type=${{ inputs.release_type }}" >> $GITHUB_OUTPUT
+        if [ "${{ inputs.release_type }}" = "patch" ]; then
+          echo "skip_platform_pr_merge=true" >> $GITHUB_OUTPUT
+          echo "version_source=default" >> $GITHUB_OUTPUT
+          echo "commit_prefix=release(patch):" >> $GITHUB_OUTPUT
+        else
+          echo "skip_platform_pr_merge=false" >> $GITHUB_OUTPUT
+          echo "version_source=platform" >> $GITHUB_OUTPUT
+          echo "commit_prefix=release(minor):" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+  
     - name: Checkout consumer's repository
       uses: actions/checkout@v4
       with:
