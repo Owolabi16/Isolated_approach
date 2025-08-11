@@ -1,0 +1,132 @@
+name: "Automate Staging Release Process (Composite)"
+description: "Composite action handling release automation with TypeScript integration"
+inputs:
+  release_version:
+    description: "Platform version (x-x-x format)"
+    required: true
+  github_token:
+    description: "GitHub token for authentication"
+    required: true
+  github_actor:
+    description: "GitHub actor/username"
+    required: true
+  helm_registry:
+    description: "Helm Registry URL"
+    required: true
+  helm_username:
+    description: "Helm Registry Username"
+    required: true
+
+outputs:
+  platform_version:
+    description: "Final platform chart version"
+    value: ${{ steps.set_output.outputs.platform_version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout consumer's repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+
+    - name: Configure Git environment
+      shell: bash
+      run: |
+        git config --global user.name "${{ inputs.github_actor }}"
+        git config --global user.email "${{ inputs.github_actor }}@users.noreply.github.com"
+        echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> $GITHUB_ENV
+        gh auth setup-git
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+
+    - name: Update service chart versions
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: scripts/update_service_chart_versions.sh "${{ inputs.release_version }}"
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+
+    - name: Merge service PRs
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: scripts/merge_service_pr.sh "${{ inputs.release_version }}"
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+
+    - name: Wait for workflows to start
+      shell: bash
+      run: sleep 10
+
+    - name: Monitor release workflows
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: node dist/monitor_release.js
+
+    - name: Setup Release Branch
+      shell: bash
+      run: |
+        BRANCH_NAME="platform-${{ inputs.release_version }}"
+        echo "Checking out existing branch ${BRANCH_NAME}..."
+        
+        # Fetch the latest remote state to ensure we have the most recent version
+        git fetch origin
+        
+        # Force checkout and reset the local branch to match the remote branch
+        git checkout -B "${BRANCH_NAME}" "origin/${BRANCH_NAME}"
+
+    - name: Update infra chart versions
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: ${{ github.action_path }}/scripts/update_infra_chart_versions.sh "${{ inputs.release_version }}"
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+
+    - name: Commit changes to infra
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: ${{ github.action_path }}/scripts/commit_changes.sh "${{ inputs.release_version }}"
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+
+    - name: Authenticate Registries
+      shell: bash
+      env:
+        HELM_REGISTRY: ${{ inputs.helm_registry }}
+        HELM_USER: ${{ inputs.helm_username }}
+        HELM_TOKEN: ${{ inputs.github_token }}
+      run: echo $HELM_TOKEN | helm registry login $HELM_REGISTRY -u $HELM_USER --password-stdin
+
+    - name: Run Helm Dependencies
+      run: helm dependency update
+      shell: bash
+      working-directory: ${{ github.workspace }}/charts/platform
+
+    - name: Commit Changes
+      run: |
+        BRANCH_NAME="platform-${{ inputs.release_version }}"
+        git add charts/platform/*
+        git commit -s -m "chore: Update platform charts for ${{ inputs.release_version }}" --no-verify || \
+          echo "No changes to commit."
+        git push origin $BRANCH_NAME
+      shell: bash
+
+    - name: Merge infra PR
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: scripts/merge_infra_pr.sh "${{ inputs.release_version }}"
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+
+    - name: Capture platform version
+      id: set_output
+      shell: bash
+      run: |
+        VERSION=$(yq e '.version' Chart.yaml)
+        echo "platform_version=$VERSION" >> $GITHUB_OUTPUT
+      working-directory: ${{ github.workspace }}/charts/platform
