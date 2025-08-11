@@ -3,6 +3,12 @@
 
 set -eo pipefail
 
+# Check if we should skip (patch releases don't need -next removal)
+if [ "$VERSION_SOURCE" = "default" ]; then
+    echo "Skipping -next removal for patch release"
+    exit 0
+fi
+
 # Validate input
 if [[ -z "$1" || ! "$1" =~ ^[0-9]+-[0-9]+-[0-9]+$ ]]; then
     echo "Error: Version must match pattern: digits-digits-digits (e.g. x-0-0)"
