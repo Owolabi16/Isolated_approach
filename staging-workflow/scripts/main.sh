@@ -5,6 +5,11 @@ PLATFORM_VERSION=$1
 GITHUB_TOKEN=$2
 GITHUB_ACTOR=$3
 
+# Pass release mode environment variables
+export SKIP_PLATFORM_PR_MERGE="${SKIP_PLATFORM_PR_MERGE:-false}"
+export VERSION_SOURCE="${VERSION_SOURCE:-platform}"
+export COMMIT_PREFIX="${COMMIT_PREFIX:-chore:}"
+
 CHART_VERSION=$(echo "$PLATFORM_VERSION" | tr '-' '.')
 
 # Get release type from environment
