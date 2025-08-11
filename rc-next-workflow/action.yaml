@@ -23,6 +23,10 @@ inputs:
   helm_username:
     description: "Helm Registry Username"
     required: true
+  services_to_deploy:
+    description: "Comma-separated list of services to deploy (e.g., 'alaffia,fdw,reports'). Leave empty to deploy all."
+    required: false
+    default: ""    
 
 outputs:
   platform_version:
@@ -94,6 +98,7 @@ runs:
       working-directory: ${{ github.action_path }}
       env:
         SHORT_SHA: ${{ env.SHORT_SHA }}
+        SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
       shell: bash
 
     - name: Initial Helm Dependencies
@@ -109,6 +114,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         BRANCH_NAME: ${{ steps.set_branch.outputs.branch_name }}
         FILE_LOCATION: ${{ github.workspace }}
+        SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
       shell: bash
 
     - name: Final Helm Dependencies
