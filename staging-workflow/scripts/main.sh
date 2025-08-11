@@ -7,6 +7,11 @@ GITHUB_ACTOR=$3
 
 CHART_VERSION=$(echo "$PLATFORM_VERSION" | tr '-' '.')
 
+# Get release type from environment
+RELEASE_TYPE="${RELEASE_TYPE:-minor}"
+
+echo "Starting staging workflow for $RELEASE_TYPE release"
+
 echo "🚀 Starting Staging Release Automation for Platform Version: $CHART_VERSION"
 
 # Step 1: Update the Platform PRs in Service Repos by removing the "-next" suffix
