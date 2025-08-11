@@ -18,7 +18,8 @@ echo "Attempting to commit and push changes to branch ${BRANCH_NAME}..."
 
 echo "Changes detected. Proceeding with commit and push."
 git add charts/platform/*
-git commit -s -m "chore(release): Update platform charts for ${RELEASE_VERSION}" --no-verify || \
+COMMIT_PREFIX="${COMMIT_PREFIX:-chore:}"
+git commit -s -m "${COMMIT_PREFIX} Update platform charts for ${RELEASE_VERSION}" --no-verify || \
   echo "No changes to commit."
 git push origin "${BRANCH_NAME}"
 
