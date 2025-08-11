@@ -49,6 +49,11 @@ process_chart() {
     local name=$4
     local chart_type=$5
 
+    # For patch releases, use default branch instead of provided ref
+    if [ "$VERSION_SOURCE" = "default" ]; then
+        ref=$(safe_gh repo view "$ORG/$repo" --json defaultBranchRef -q '.defaultBranchRef.name')
+    fi
+
     echo "  Checking ${path%%/*}..."
     
     local chart_content
@@ -58,8 +63,15 @@ process_chart() {
         local version
         version=$(echo "$chart_content" | base64 --decode 2>/dev/null | awk '/^version:/ {print $2}')
         
+
         if [ -n "$version" ]; then
+            # Clean version for patch releases
+            if [ "$VERSION_SOURCE" = "default" ]; then
+                version=$(echo "$version" | sed -E 's/(-next.*|-[0-9a-f]{7,}$)//')
+            fi
+
             for i in "${!DEPENDENCY_NAMES[@]}"; do
+
                 if [[ "${DEPENDENCY_NAMES[i]}" == "$name" ]]; then
                     if [[ "$chart_type" == "subchart" ]]; then
                         echo "  ✓ Updated $name (subchart): $version"
