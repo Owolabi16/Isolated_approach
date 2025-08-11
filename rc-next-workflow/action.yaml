@@ -41,6 +41,14 @@ runs:
       run: echo "branch_name=platform-${{ inputs.release_version }}" >> $GITHUB_OUTPUT
       shell: bash
 
+    - name: Check if Patch Release
+      if: inputs.release_type == 'patch'
+      run: |
+        echo "::notice::Skipping RC-Next workflow for patch release"
+        echo "This is a patch release. RC-Next deployment is not required."
+        exit 0
+      shell: bash      
+
     - name: Initialize repo
       uses: actions/checkout@v4
       with:
