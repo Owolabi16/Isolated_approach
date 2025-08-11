@@ -19,6 +19,16 @@ PLATFORM_CHART_PATH="charts/platform/Chart.yaml"
 ORG="Alaffia-Technology-Solutions"
 REPO="infra"
 
+# Determine which branch to read from based on release type
+if [ "$VERSION_SOURCE" = "default" ]; then
+    echo "Patch release mode: Reading from default branches"
+    BRANCH_REF="default"
+else
+    echo "Minor release mode: Reading from platform branches"
+    BRANCH_REF="platform-$1"
+fi
+
+
 # Update platform chart version
 echo "Updating Platform Chart version to $CHART_VERSION"
 yq -i ".version = \"$CHART_VERSION\"" "$PLATFORM_CHART_PATH"
