@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eo pipefail
 
+# Check if we should skip PR merging (patch releases)
+if [ "$SKIP_PLATFORM_PR_MERGE" = "true" ]; then
+    echo "Skipping platform PR merge for patch release"
+    exit 0
+fi
+
 # Validate input
 if [[ -z "$1" || ! "$1" =~ ^[0-9]+-[0-9]+-[0-9]+$ ]]; then
     echo "Error: Version must match pattern: digits-digits-digits (e.g. 1-0-0)"
