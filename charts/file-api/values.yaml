@@ -1,0 +1,2 @@
+# Default values for file-api
+replicaCount: 1

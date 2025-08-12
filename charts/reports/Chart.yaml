@@ -1,0 +1,5 @@
+apiVersion: v2
+name: reports
+version: 0.0.0
+description: Mock reports chart for testing
+type: application

@@ -1,0 +1,39 @@
+apiVersion: v2
+name: platform
+version: 0.0.0
+description: Platform umbrella chart
+type: application
+
+dependencies:
+  - name: alaffia
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: alaffia.enabled
+  - name: fdw
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: fdw.enabled
+  - name: reports
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: reports.enabled
+  - name: gpt-search
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: gpt-search.enabled
+  - name: document-api
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: document-api.enabled
+  - name: autodor-py
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: autodor-py.enabled
+  - name: file-api
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: file-api.enabled
+  - name: graphql
+    version: 0.0.0
+    repository: "https://your-helm-registry/charts"
+    condition: graphql.enabled

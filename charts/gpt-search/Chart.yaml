@@ -1,0 +1,5 @@
+apiVersion: v2
+name: gpt-search
+version: 0.0.0
+description: Mock gpt-search chart for testing
+type: application

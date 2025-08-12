@@ -1,0 +1,5 @@
+apiVersion: v2
+name: autodor-py
+version: 0.0.0
+description: Mock autodor-py chart for testing
+type: application

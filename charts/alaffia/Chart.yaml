@@ -1,0 +1,5 @@
+apiVersion: v2
+name: alaffia
+version: 0.0.0
+description: Mock alaffia chart for testing
+type: application

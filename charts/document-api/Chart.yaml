@@ -1,0 +1,5 @@
+apiVersion: v2
+name: document-api
+version: 0.0.0
+description: Mock document-api chart for testing
+type: application

@@ -1,0 +1,2 @@
+# Default values for graphql
+replicaCount: 1
