@@ -27,6 +27,10 @@ inputs:
     description: "Comma-separated list of services to deploy (e.g., 'alaffia,fdw,reports'). Leave empty to deploy all."
     required: false
     default: ""    
+  release_type:
+    description: "Release type: 'minor' or 'patch'"
+    required: true
+    default: "minor"    
 
 outputs:
   platform_version:
