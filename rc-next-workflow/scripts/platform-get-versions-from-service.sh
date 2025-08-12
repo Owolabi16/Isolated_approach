@@ -29,8 +29,42 @@ fi
 echo "Updating Platform Chart version to $CHART_VERSION-next"
 yq -i ".version = \"$CHART_VERSION-next-$SHORT_SHA\"" "$PLATFORM_CHART_PATH"
 
+# Check if this is a patch release - if so, skip the rest
+if [ "$RELEASE_TYPE" = "patch" ]; then
+    echo "Patch release detected - skipping RC-Next version updates"
+    exit 0
+fi
+
 # Initialize CHANGED_REPOS as an empty array
 CHANGED_REPOS=()
+
+# Parse services to deploy
+if [ -n "$SERVICES_TO_DEPLOY" ]; then
+    IFS=',' read -ra SELECTED_SERVICES <<< "$SERVICES_TO_DEPLOY"
+    echo "Selected services to deploy: ${SELECTED_SERVICES[@]}"
+else
+    SELECTED_SERVICES=()
+    echo "No specific services selected, will process all services with matching branches"
+fi
+
+# Function to check if a service should be deployed
+should_deploy_service() {
+    local service=$1
+    
+    # If no services specified, deploy all
+    if [ ${#SELECTED_SERVICES[@]} -eq 0 ]; then
+        return 0
+    fi
+    
+    # Check if service is in the selected list
+    for selected in "${SELECTED_SERVICES[@]}"; do
+        if [ "$service" == "$selected" ]; then
+            return 0
+        fi
+    done
+    
+    return 1
+}
 
 # Fetch repos with matching branches
 for repo in $(gh repo list alaffia-Technology-Solutions --json name -q '.[].name'); do
@@ -43,7 +77,13 @@ for repo in $(gh repo list alaffia-Technology-Solutions --json name -q '.[].name
   branches=$(gh api repos/alaffia-Technology-Solutions/"$repo"/branches --paginate --jq '.[] | select(.name == "platform-'"$NEXT_VERSION"'") | .name')
   echo "Branches found: $branches"
   if [ -n "$branches" ]; then
-    CHANGED_REPOS+=("$repo")
+    if should_deploy_service "$repo"; then
+      CHANGED_REPOS+=("$repo")
+      echo "✓ Service $repo will be deployed"
+    else
+      echo "✗ Service $repo skipped (not in deployment list)"
+      continue
+    fi
     for branch in $branches; do
       echo "Checking $repo:$branch"
       chart_version=$(gh api repos/alaffia-Technology-Solutions/"$repo"/contents/chart/Chart.yaml?ref="$branch" --jq '.content' | base64 --decode | grep '^version:' | awk '{print $2}' 2>/dev/null)
