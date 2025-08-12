@@ -7,33 +7,25 @@ type: application
 dependencies:
   - name: alaffia
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: alaffia.enabled
+    repository: "file://../alaffia"
   - name: fdw
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: fdw.enabled
+    repository: "file://../fdw"
   - name: reports
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: reports.enabled
+    repository: "file://../reports"
   - name: gpt-search
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: gpt-search.enabled
+    repository: "file://../gpt-search"
   - name: document-api
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: document-api.enabled
+    repository: "file://../document-api"
   - name: autodor-py
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: autodor-py.enabled
+    repository: "file://../autodor-py"
   - name: file-api
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: file-api.enabled
+    repository: "file://../file-api"
   - name: graphql
     version: 0.0.0
-    repository: "https://your-helm-registry/charts"
-    condition: graphql.enabled
+    repository: "file://../graphql"
