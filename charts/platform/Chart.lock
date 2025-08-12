@@ -1,0 +1,27 @@
+dependencies:
+- name: alaffia
+  repository: file://../alaffia
+  version: 0.0.0
+- name: fdw
+  repository: file://../fdw
+  version: 0.0.0
+- name: reports
+  repository: file://../reports
+  version: 0.0.0
+- name: gpt-search
+  repository: file://../gpt-search
+  version: 0.0.0
+- name: document-api
+  repository: file://../document-api
+  version: 0.0.0
+- name: autodor-py
+  repository: file://../autodor-py
+  version: 0.0.0
+- name: file-api
+  repository: file://../file-api
+  version: 0.0.0
+- name: graphql
+  repository: file://../graphql
+  version: 0.0.0
+digest: sha256:4b4e244f6d90ef1ab2c8fd6635f1e0466c4eca4f26c2771be149bd6585771ab2
+generated: "2025-08-12T14:49:33.528899882Z"
