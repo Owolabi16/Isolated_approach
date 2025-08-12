@@ -303,6 +303,11 @@ async function loadFailedCharts(): Promise<string[]> {
 
 async function main(): Promise<void> {
   try {
+    // Skip entirely for patch releases
+    if (RELEASE_TYPE === 'patch') {
+      core.info('🏃 Skipping RC-Next workflow for patch release');
+      return;
+    }
     const failedData = await loadFailedCharts();
     if (failedData.length > 0) {
       core.info(`📄 Found ${failedData.length} failed chart(s)`);
