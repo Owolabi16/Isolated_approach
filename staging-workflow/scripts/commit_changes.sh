@@ -17,6 +17,15 @@ BRANCH_NAME="platform-$INPUT_VERSION"
 # Release version should replace hyphens with dots
 RELEASE_VERSION="${INPUT_VERSION//-/.}"
 
+# Checkout branch before making changes
+if git rev-parse --verify "${BRANCH_NAME}" >/dev/null 2>&1; then
+    echo "Checking out existing branch ${BRANCH_NAME}..."
+    git checkout "${BRANCH_NAME}"
+else
+    echo "Creating and checking out new branch ${BRANCH_NAME}..."
+    git checkout -b "${BRANCH_NAME}"
+fi
+
 # Commit and push changes
 echo "Attempting to commit and push changes to branch ${BRANCH_NAME}..."
 
