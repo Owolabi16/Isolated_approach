@@ -37,7 +37,7 @@ git commit -s -m "${COMMIT_PREFIX} Update platform charts for ${RELEASE_VERSION}
 # Sync with remote before pushing
 git fetch origin "${BRANCH_NAME}"
 git rebase origin/"${BRANCH_NAME}" || git rebase --abort
-  
-git push origin "${BRANCH_NAME}"
+
+git push origin -u "${BRANCH_NAME}"
 
 echo "Successfully pushed to branch ${BRANCH_NAME}."
