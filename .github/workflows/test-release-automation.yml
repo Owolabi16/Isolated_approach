@@ -43,7 +43,7 @@ jobs:
           release_version: ${{ inputs.release_version }}
           release_type: ${{ inputs.release_type }}
           services_to_deploy: ${{ inputs.services_to_deploy }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PAT_TOKEN }}
           github_actor: ${{ github.actor }}
           docker_hub_username: ${{ secrets.DOCKER_USERNAME }}
           docker_hub_token: ${{ secrets.DOCKER_TOKEN }}
@@ -63,10 +63,10 @@ jobs:
         with:
           release_version: ${{ inputs.release_version }}
           release_type: ${{ inputs.release_type }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PAT_TOKEN }}
           github_actor: ${{ github.actor }}
-          helm_registry: ${{ vars.HELM_REGISTRY }}
-          helm_username: ${{ vars.HELM_USERNAME }}
+          helm_registry: ${{ secrets.HELM_REGISTRY }}
+          helm_username: ${{ secrets.HELM_USERNAME }}
         env:
           SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
 
@@ -82,9 +82,9 @@ jobs:
         with:
           release_version: ${{ inputs.release_version }}
           release_type: ${{ inputs.release_type }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PAT_TOKEN }}
           github_actor: ${{ github.actor }}
-          helm_registry: ${{ vars.HELM_REGISTRY }}
-          helm_username: ${{ vars.HELM_USERNAME }}
+          helm_registry: ${{ secrets.HELM_REGISTRY }}
+          helm_username: ${{ secrets.HELM_USERNAME }}
         env:
           SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
