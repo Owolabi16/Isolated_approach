@@ -91,6 +91,8 @@ runs:
     - name: Setup Release Branch
       shell: bash
       run: |
+        git fetch --all --prune
+
         if [ "${{ inputs.release_type }}" = "patch" ]; then
           # For patch releases, stay on default branch
           echo "Patch release - staying on default branch"
