@@ -33,6 +33,11 @@ git add charts/platform/*
 COMMIT_PREFIX="${COMMIT_PREFIX:-chore:}"
 git commit -s -m "${COMMIT_PREFIX} Update platform charts for ${RELEASE_VERSION}" --no-verify || \
   echo "No changes to commit."
+
+# Sync with remote before pushing
+git fetch origin "${BRANCH_NAME}"
+git rebase origin/"${BRANCH_NAME}" || git rebase --abort
+  
 git push origin "${BRANCH_NAME}"
 
 echo "Successfully pushed to branch ${BRANCH_NAME}."
