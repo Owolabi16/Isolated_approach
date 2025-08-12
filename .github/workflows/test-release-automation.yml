@@ -1,0 +1,90 @@
+name: Test Release Automation
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version (format: x-x-x)'
+        required: true
+        default: '1-0-0'
+      release_type:
+        description: 'Release type: minor or patch'
+        required: true
+        type: choice
+        options:
+          - minor
+          - patch
+        default: minor
+      services_to_deploy:
+        description: 'Services to deploy (comma-separated, leave empty for all)'
+        required: false
+        default: ''
+      skip_staging:
+        description: 'Skip staging workflow (for testing RC-Next only)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  test-rc-next:
+    name: Test RC-Next Workflow
+    runs-on: ubuntu-latest
+    if: inputs.release_type == 'minor'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run RC-Next Workflow
+        uses: ./rc-next-workflow
+        with:
+          release_version: ${{ inputs.release_version }}
+          release_type: ${{ inputs.release_type }}
+          services_to_deploy: ${{ inputs.services_to_deploy }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_actor: ${{ github.actor }}
+          docker_hub_username: ${{ secrets.DOCKER_USERNAME || 'test-user' }}
+          docker_hub_token: ${{ secrets.DOCKER_TOKEN || 'test-token' }}
+          helm_registry: ${{ vars.HELM_REGISTRY || 'ghcr.io/your-org' }}
+          helm_username: ${{ vars.HELM_USERNAME || github.actor }}
+
+  test-staging:
+    name: Test Staging Workflow
+    runs-on: ubuntu-latest
+    needs: [test-rc-next]
+    if: always() && !inputs.skip_staging
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Staging Workflow
+        uses: ./staging-workflow
+        with:
+          release_version: ${{ inputs.release_version }}
+          release_type: ${{ inputs.release_type }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_actor: ${{ github.actor }}
+          helm_registry: ${{ vars.HELM_REGISTRY || 'ghcr.io/your-org' }}
+          helm_username: ${{ vars.HELM_USERNAME || github.actor }}
+        env:
+          SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
+
+  test-patch-direct:
+    name: Test Patch Release (Direct)
+    runs-on: ubuntu-latest
+    if: inputs.release_type == 'patch'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Staging Workflow (Patch Mode)
+        uses: ./staging-workflow
+        with:
+          release_version: ${{ inputs.release_version }}
+          release_type: ${{ inputs.release_type }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_actor: ${{ github.actor }}
+          helm_registry: ${{ vars.HELM_REGISTRY || 'ghcr.io/your-org' }}
+          helm_username: ${{ vars.HELM_USERNAME || github.actor }}
+        env:
+          SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
