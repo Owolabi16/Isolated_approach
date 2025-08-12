@@ -94,7 +94,12 @@ runs:
         if [ "${{ inputs.release_type }}" = "patch" ]; then
           # For patch releases, stay on default branch
           echo "Patch release - staying on default branch"
-          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          
+          # Get default branch using GitHub API
+          DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q '.defaultBranchRef.name')
+          echo "Default branch is: $DEFAULT_BRANCH"
+          
+          git fetch origin
           git checkout "${DEFAULT_BRANCH}"
           git pull origin "${DEFAULT_BRANCH}"
         else
@@ -108,6 +113,8 @@ runs:
           # Force checkout and reset to match remote
           git checkout -B "${BRANCH_NAME}" "origin/${BRANCH_NAME}"
         fi
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
 
     - name: Update infra chart versions
       shell: bash
@@ -140,7 +147,7 @@ runs:
       run: |
         if [ "${{ inputs.release_type }}" = "patch" ]; then
           # For patch, push to default branch
-          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q '.defaultBranchRef.name')
           git add charts/platform/*
           git commit -s -m "release(patch): Update platform charts for ${{ inputs.release_version }}" --no-verify || \
             echo "No changes to commit."
@@ -154,6 +161,8 @@ runs:
           git push origin $BRANCH_NAME
         fi
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
 
     - name: Merge infra PR
       shell: bash
