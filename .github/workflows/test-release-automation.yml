@@ -70,9 +70,9 @@ jobs:
         env:
           SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
           RELEASE_TYPE: ${{ inputs.release_type }}
-          VERSION_SOURCE: "platform"
-          SKIP_PLATFORM_PR_MERGE: "false"
-          COMMIT_PREFIX: "chore:"
+          VERSION_SOURCE: ${{ inputs.release_type == 'patch' && 'default' || 'platform' }}
+          SKIP_PLATFORM_PR_MERGE: ${{ inputs.release_type == 'patch' && 'true' || 'false' }}
+          COMMIT_PREFIX: ${{ inputs.release_type == 'patch' && 'release(patch):' || 'chore:' }}
 
   test-patch-direct:
     name: Test Patch Release (Direct)
@@ -93,6 +93,6 @@ jobs:
         env:
           SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
           RELEASE_TYPE: ${{ inputs.release_type }}
-          VERSION_SOURCE: "default"
-          SKIP_PLATFORM_PR_MERGE: "true"
-          COMMIT_PREFIX: "release(patch):"
+          VERSION_SOURCE: ${{ inputs.release_type == 'patch' && 'default' || 'platform' }}
+          SKIP_PLATFORM_PR_MERGE: ${{ inputs.release_type == 'patch' && 'true' || 'false' }}
+          COMMIT_PREFIX: ${{ inputs.release_type == 'patch' && 'release(patch):' || 'chore:' }}

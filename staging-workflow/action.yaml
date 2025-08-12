@@ -145,17 +145,16 @@ runs:
       shell: bash
       working-directory: ${{ github.workspace }}/charts/platform
 
-    - name: Commit Changes
+    - name: Commit Changes  
       run: |
         if [ "${{ inputs.release_type }}" = "patch" ]; then
-          # For patch, push to default branch
-          DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q '.defaultBranchRef.name')
+          # For patch, stay on current branch (main)
           git add charts/platform/*
           git commit -s -m "release(patch): Update platform charts for ${{ inputs.release_version }}" --no-verify || \
             echo "No changes to commit."
-          git push origin "${DEFAULT_BRANCH}"
+          git push origin HEAD
         else
-          # For minor, push to platform branch
+          # For minor, use platform branch
           BRANCH_NAME="platform-${{ inputs.release_version }}"
           git add charts/platform/*
           git commit -s -m "chore: Update platform charts for ${{ inputs.release_version }}" --no-verify || \
