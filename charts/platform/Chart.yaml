@@ -1,6 +1,6 @@
 apiVersion: v2
 name: platform
-version: 1.0.0-next-840485c
+version: 1.0.0-next-12a852a
 description: Platform umbrella chart
 type: application
 dependencies:
