@@ -13,6 +13,12 @@ ORG="alaffia-Technology-Solutions"
 REPO="infra"
 BRANCH_NAME="platform-$VERSION"
 
+# Skip PR merge if flag is set
+if [[ "$SKIP_PLATFORM_PR_MERGE" == "true" ]]; then
+  echo "Skipping platform PR merge step as SKIP_PLATFORM_PR_MERGE=true."
+  exit 0
+fi
+
 # Check if the platform branch exists in the infra repository
 if ! gh api "repos/$ORG/$REPO/branches/$BRANCH_NAME" --silent >/dev/null 2>&1; then
     echo "❌ Platform branch $BRANCH_NAME does not exist in $REPO"
