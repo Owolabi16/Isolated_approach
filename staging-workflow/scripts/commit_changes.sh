@@ -8,15 +8,18 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-# Set environment variables
-PLATFORM_VERSION=$1
-BRANCH_NAME="platform-$PLATFORM_VERSION"
-RELEASE_VERSION=$(echo "$PLATFORM_VERSION" | tr '-' '.')
+# Extract version from input
+INPUT_VERSION="$1"
+
+# Branch name should keep the original hyphen style
+BRANCH_NAME="platform-$INPUT_VERSION"
+
+# Release version should replace hyphens with dots
+RELEASE_VERSION="${INPUT_VERSION//-/.}"
 
 # Commit and push changes
 echo "Attempting to commit and push changes to branch ${BRANCH_NAME}..."
 
-echo "Changes detected. Proceeding with commit and push."
 git add charts/platform/*
 COMMIT_PREFIX="${COMMIT_PREFIX:-chore:}"
 git commit -s -m "${COMMIT_PREFIX} Update platform charts for ${RELEASE_VERSION}" --no-verify || \
