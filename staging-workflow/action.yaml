@@ -91,14 +91,23 @@ runs:
     - name: Setup Release Branch
       shell: bash
       run: |
-        BRANCH_NAME="platform-${{ inputs.release_version }}"
-        echo "Checking out existing branch ${BRANCH_NAME}..."
-        
-        # Fetch the latest remote state to ensure we have the most recent version
-        git fetch origin
-        
-        # Force checkout and reset the local branch to match the remote branch
-        git checkout -B "${BRANCH_NAME}" "origin/${BRANCH_NAME}"
+        if [ "${{ inputs.release_type }}" = "patch" ]; then
+          # For patch releases, stay on default branch
+          echo "Patch release - staying on default branch"
+          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          git checkout "${DEFAULT_BRANCH}"
+          git pull origin "${DEFAULT_BRANCH}"
+        else
+          # For minor releases, use platform branch
+          BRANCH_NAME="platform-${{ inputs.release_version }}"
+          echo "Checking out existing branch ${BRANCH_NAME}..."
+          
+          # Fetch the latest remote state
+          git fetch origin
+          
+          # Force checkout and reset to match remote
+          git checkout -B "${BRANCH_NAME}" "origin/${BRANCH_NAME}"
+        fi
 
     - name: Update infra chart versions
       shell: bash
@@ -129,11 +138,21 @@ runs:
 
     - name: Commit Changes
       run: |
-        BRANCH_NAME="platform-${{ inputs.release_version }}"
-        git add charts/platform/*
-        git commit -s -m "chore: Update platform charts for ${{ inputs.release_version }}" --no-verify || \
-          echo "No changes to commit."
-        git push origin $BRANCH_NAME
+        if [ "${{ inputs.release_type }}" = "patch" ]; then
+          # For patch, push to default branch
+          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          git add charts/platform/*
+          git commit -s -m "release(patch): Update platform charts for ${{ inputs.release_version }}" --no-verify || \
+            echo "No changes to commit."
+          git push origin "${DEFAULT_BRANCH}"
+        else
+          # For minor, push to platform branch
+          BRANCH_NAME="platform-${{ inputs.release_version }}"
+          git add charts/platform/*
+          git commit -s -m "chore: Update platform charts for ${{ inputs.release_version }}" --no-verify || \
+            echo "No changes to commit."
+          git push origin $BRANCH_NAME
+        fi
       shell: bash
 
     - name: Merge infra PR

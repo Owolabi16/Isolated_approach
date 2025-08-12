@@ -69,7 +69,10 @@ jobs:
           helm_username: ${{ secrets.HELM_USERNAME }}
         env:
           SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
-          VERSION_SOURCE: ${{ inputs.release_type == 'patch' && 'default' || 'platform' }}
+          RELEASE_TYPE: ${{ inputs.release_type }}
+          VERSION_SOURCE: "platform"
+          SKIP_PLATFORM_PR_MERGE: "false"
+          COMMIT_PREFIX: "chore:"
 
   test-patch-direct:
     name: Test Patch Release (Direct)
@@ -89,4 +92,7 @@ jobs:
           helm_username: ${{ secrets.HELM_USERNAME }}
         env:
           SERVICES_TO_DEPLOY: ${{ inputs.services_to_deploy }}
-          VERSION_SOURCE: ${{ inputs.release_type == 'patch' && 'default' || 'platform' }}
+          RELEASE_TYPE: ${{ inputs.release_type }}
+          VERSION_SOURCE: "default"
+          SKIP_PLATFORM_PR_MERGE: "true"
+          COMMIT_PREFIX: "release(patch):"

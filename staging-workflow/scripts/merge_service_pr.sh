@@ -1,6 +1,9 @@
 #!/bin/bash
 set -eo pipefail
 
+# Set default values if not provided
+SKIP_PLATFORM_PR_MERGE="${SKIP_PLATFORM_PR_MERGE:-false}"
+
 # Check if we should skip PR merging (patch releases)
 if [ "$SKIP_PLATFORM_PR_MERGE" = "true" ]; then
     echo "Skipping platform PR merge for patch release"

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# Set default values if not provided
+VERSION_SOURCE="${VERSION_SOURCE:-platform}"
+RELEASE_TYPE="${RELEASE_TYPE:-minor}"
+
 # Check if argument is provided
 if [ -z "$1" ]; then
     echo "Error: Version argument is required"

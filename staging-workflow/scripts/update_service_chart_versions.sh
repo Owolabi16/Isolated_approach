@@ -3,6 +3,10 @@
 
 set -eo pipefail
 
+# Set default values if not provided
+VERSION_SOURCE="${VERSION_SOURCE:-platform}"
+RELEASE_TYPE="${RELEASE_TYPE:-minor}"
+
 # Check if we should skip (patch releases don't need -next removal)
 if [ "$VERSION_SOURCE" = "default" ]; then
     echo "Skipping -next removal for patch release"
