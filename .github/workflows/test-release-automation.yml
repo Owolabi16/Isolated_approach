@@ -50,6 +50,14 @@ jobs:
           helm_registry: ${{ secrets.HELM_REGISTRY }}
           helm_username: ${{ secrets.HELM_USERNAME }}
 
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: Owolabi16/slack-test@main
+        with:
+          github-actor: ${{ github.actor }}
+          pipeline-name: ${{ github.workflow }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
   test-staging:
     name: Test Staging Workflow
     runs-on: ubuntu-latest
@@ -74,6 +82,14 @@ jobs:
           SKIP_PLATFORM_PR_MERGE: ${{ inputs.release_type == 'patch' && 'true' || 'false' }}
           COMMIT_PREFIX: ${{ inputs.release_type == 'patch' && 'release(patch):' || 'chore:' }}
 
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: Owolabi16/slack-test@main
+        with:
+          github-actor: ${{ github.actor }}
+          pipeline-name: ${{ github.workflow }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
   test-patch-direct:
     name: Test Patch Release (Direct)
     runs-on: ubuntu-latest
@@ -96,3 +112,12 @@ jobs:
           VERSION_SOURCE: ${{ inputs.release_type == 'patch' && 'default' || 'platform' }}
           SKIP_PLATFORM_PR_MERGE: ${{ inputs.release_type == 'patch' && 'true' || 'false' }}
           COMMIT_PREFIX: ${{ inputs.release_type == 'patch' && 'release(patch):' || 'chore:' }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: Owolabi16/slack-test@main
+        with:
+          github-actor: ${{ github.actor }}
+          pipeline-name: ${{ github.workflow }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
